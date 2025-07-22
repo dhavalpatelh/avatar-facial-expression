@@ -82,15 +82,39 @@ const useAzureTTS = () => {
 // ====================================================================================
 
 // Mappa gli ID dei visemi di Azure ai nomi dei morph target della bocca
-const azureVisemeMap = {
+/*  const azureVisemeMap = {
     0: 'viseme_sil', 1: 'viseme_PP', 2: 'viseme_AA', 3: 'viseme_O',
     4: 'viseme_E', 5: 'viseme_E', 6: 'viseme_I', 7: 'viseme_U', 
     8: 'viseme_O', 9: 'viseme_O', 10: 'viseme_O', 11: 'viseme_I',
     12: 'viseme_TH', 13: 'viseme_RR', 14: 'viseme_l', 15: 'viseme_SS',
     16: 'viseme_CH', 17: 'viseme_TH', 18: 'viseme_FF', 19: 'viseme_DD',
     20: 'viseme_kk', 21: 'viseme_PP'
-}; 
+};   */
 
+const azureVisemeMap = {
+    0: 'viseme_sil',    // Silenzio
+    1: 'viseme_PP',     // Suoni: p, b, m
+    2: 'viseme_AA',     // Suoni: æ, ə, ʌ (a aperta)
+    3: 'viseme_O',      // Suoni: ɔ (o aperta)
+    4: 'viseme_E',      // Suoni: ɛ, e, ɪ (e, i breve)
+    5: 'viseme_RR',     // Suoni: ə, ɹ ("er"). 'RR' è spesso un buon sostituto se manca 'er'.
+    6: 'viseme_I',      // Suoni: i, j (i lunga)
+    7: 'viseme_U',      // Suoni: u, w (u lunga)
+    8: 'viseme_O',      // Suoni: o
+    9: 'viseme_O',      // Suoni: aʊ (ow). Semplificato in 'O'.
+    10: 'viseme_O',     // Suoni: ɔɪ (oy). Semplificato in 'O'.
+    11: 'viseme_I',     // Suoni: aɪ (eye). Semplificato in 'I'.
+    12: 'viseme_sil',    // Suoni: h. CORRETTO: Mappato a silenzio per evitare movimenti errati della lingua.
+    13: 'viseme_RR',     // Suoni: ɹ (r)
+    14: 'viseme_l',      // Suoni: l
+    15: 'viseme_SS',     // Suoni: s, z
+    16: 'viseme_CH',     // Suoni: ʃ, ʒ, tʃ, dʒ (sh, ch, j)
+    17: 'viseme_TH',     // Suoni: ð, θ (th)
+    18: 'viseme_FF',     // Suoni: f, v
+    19: 'viseme_DD',     // Suoni: d, t, n
+    20: 'viseme_kk',     // Suoni: k, g, ŋ (k, g, ng)
+    21: 'viseme_CH'      // Suoni: tʃ (ch). CORRETTO: Mappato a 'CH' invece di 'PP'.
+}; 
 // --- NUOVO: Mappa i visemi a espressioni oculari aggiuntive ---
 // Associa un ID visema a un'espressione oculare e alla sua intensità.
 // Puoi personalizzare questi valori per ottenere l'effetto desiderato.
