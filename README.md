@@ -60,3 +60,8 @@ You can modify the input text field and click the **"Speak"** button to:
 
 * Dynamically synthesize new speech
 * Automatically update avatar lip movements in sync
+
+
+**Update**:
+- **Avatar5** presents new additionals eyes movements while avatar talks
+- **Experience** takes its modifications account in it.
