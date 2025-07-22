@@ -7,7 +7,7 @@ import { SkeletonUtils } from 'three-stdlib'
 import {useControls, button} from "leva";
 import * as THREE from "three";
 
-
+/// this is custom azure avatar speaker component ////
 // import { useAzureTTS } from "../hooks/useAzureTTS"; // Ensure this path is correct
 
 const useAzureTTS = () => {
@@ -106,6 +106,8 @@ export function Avatar5(props) {
     // Nomi dei morph target per il battito di ciglia
     const blinkLeftName = 'eyeBlinkLeft';
     const blinkRightName = 'eyeBlinkRight';
+
+    
 
     // Logica per il battito di ciglia automatico
     useEffect(() => {
