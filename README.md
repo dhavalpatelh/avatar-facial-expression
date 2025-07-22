@@ -62,6 +62,10 @@ You can modify the input text field and click the **"Speak"** button to:
 * Automatically update avatar lip movements in sync
 
 
-**Update**:
+**Update V1**:
 - **Avatar5** presents new additionals eyes movements while avatar talks
+- **Experience** takes its modifications account in it.
+
+**Update V2**:
+- **Avatar6** presents new additionals eyes movements as humanoid while avatar talks
 - **Experience** takes its modifications account in it.
