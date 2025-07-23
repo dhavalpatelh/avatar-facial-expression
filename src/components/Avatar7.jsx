@@ -79,17 +79,8 @@ const useAzureTTS = () => {
 
 // ====================================================================================
 // MAPPE DI CONFIGURAZIONE
+// (Nessuna modifica qui)
 // ====================================================================================
-
-// Mappa gli ID dei visemi di Azure ai nomi dei morph target della bocca
-/*  const azureVisemeMap = {
-    0: 'viseme_sil', 1: 'viseme_PP', 2: 'viseme_AA', 3: 'viseme_O',
-    4: 'viseme_E', 5: 'viseme_E', 6: 'viseme_I', 7: 'viseme_U', 
-    8: 'viseme_O', 9: 'viseme_O', 10: 'viseme_O', 11: 'viseme_I',
-    12: 'viseme_TH', 13: 'viseme_RR', 14: 'viseme_l', 15: 'viseme_SS',
-    16: 'viseme_CH', 17: 'viseme_TH', 18: 'viseme_FF', 19: 'viseme_DD',
-    20: 'viseme_kk', 21: 'viseme_PP'
-};   */
 
 const azureVisemeMap = {
     0: 'viseme_sil',    // Silenzio
@@ -114,72 +105,46 @@ const azureVisemeMap = {
     19: 'viseme_DD',     // Suoni: d, t, n
     20: 'viseme_kk',     // Suoni: k, g, ŋ (k, g, ng)
     21: 'viseme_CH'      // Suoni: tʃ (ch). CORRETTO: Mappato a 'CH' invece di 'PP'.
-}; 
-// --- NUOVO: Mappa i visemi a espressioni oculari aggiuntive ---
-// Associa un ID visema a un'espressione oculare e alla sua intensità.
-// Puoi personalizzare questi valori per ottenere l'effetto desiderato.
+};
 const visemeToEyeExpressionMap = {
-    // Visemi per suoni aperti -> Spalanca leggermente gli occhi per dare enfasi
-    2: { name: 'eyeWide', influence: 0.4 },  // AA (es. "father")
-    3: { name: 'eyeWide', influence: 0.3 },  // O  (es. "oh")
-
-    // Visemi per suoni duri o sibilanti -> Strizza leggermente gli occhi per simulare sforzo
-    15: { name: 'eyeSquint', influence: 0.5 }, // SS (es. "smile")
-    16: { name: 'eyeSquint', influence: 0.6 }, // CH (es. "cheese")
-    17: { name: 'eyeSquint', influence: 0.4 }, // TH (es. "think")
-    20: { name: 'eyeSquint', influence: 0.7 }, // kk (es. "cat")
+    2: { name: 'eyeWide', influence: 0.4 },
+    3: { name: 'eyeWide', influence: 0.3 },
+    15: { name: 'eyeSquint', influence: 0.5 },
+    16: { name: 'eyeSquint', influence: 0.6 },
+    17: { name: 'eyeSquint', influence: 0.4 },
+    20: { name: 'eyeSquint', influence: 0.7 },
 };
 
 // ====================================================================================
 // COMPONENTE AVATAR
 // ====================================================================================
-export function Avatar6(props) {
+export function Avatar7(props) {
     const morphTargetSmoothing =  0.5;
 
-    const [text, setText] = useState(`Sono Socrate, un filosofo ateniese conosciuto soprattutto per
-        il mio metodo di insegnamento basato sul dialogo e 
-        sulle domande. Non ho scritto nulla di mio pugno, 
-        ma ho influenzato profondamente la filosofia occidentale attraverso il confronto con i miei interlocutori.
-        Cosa faccio?
-        Aiuto le persone a mettere in discussione le proprie convinzioni, 
-        a riflettere profondamente e a scoprire la verità dentro di sé.
-        Credo che la vera saggezza consista nel riconoscere la propria ignoranza: “So di non sapere”.
-        Il mio metodo:
-        Il metodo socratico consiste nel porre domande, smascherare le contraddizioni e stimolare la ricerca autonoma della conoscenza. Preferisco il dialogo alla lezione frontale.
-        ?`);
+    const [text, setText] = useState(`Sono Socrate, un filosofo ateniese. Con il mio metodo basato sul dialogo, aiuto le persone a esaminare le proprie convinzioni e a scoprire la verità dentro di sé. La vera saggezza, per me, è riconoscere la propria ignoranza.`);
     const { speak, visemes, audio, isPlaying, isLoading } = useAzureTTS();
 
     const { scene } = useGLTF('/models/fikrat-avatar-cut.glb');
     const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene]);
     const { nodes, materials } = useGraph(clone);
 
-
-    
-
-    // Controlli Leva solo per la sintesi vocale
     useControls('Speech', {
         text: { value: text, onChange: setText },
         speak: button(() => { if (!isLoading) { speak(text); } }, { disabled: isLoading }),
         status: { value: isLoading ? 'Synthesizing...' : (isPlaying ? 'Speaking...' : 'Idle'), editable: false }
-    }, [text, isLoading]);
+    }, [text, isLoading, speak]);
 
-    // Nomi dei morph target per il battito di ciglia
     const blinkLeftName = 'eyeBlinkLeft';
     const blinkRightName = 'eyeBlinkRight';
 
-    // Logica per il battito di ciglia automatico
     useEffect(() => {
         if (!nodes.Head_Mesh001?.morphTargetDictionary) return;
-
-        // Corretto il typo qui
         const blinkLeftIndex = nodes.Head_Mesh001.morphTargetDictionary[blinkLeftName];
         const blinkRightIndex = nodes.Head_Mesh001.morphTargetDictionary[blinkRightName];
-
         if (blinkLeftIndex === undefined || blinkRightIndex === undefined) {
             console.warn(`Attenzione: Morph target per il battito di ciglia non trovati: '${blinkLeftName}', '${blinkRightName}'.`);
             return;
         }
-
         let blinkTimeout;
         const triggerBlink = () => {
             if (nodes.Head_Mesh001.morphTargetInfluences) {
@@ -194,30 +159,46 @@ export function Avatar6(props) {
         };
         triggerBlink();
         return () => clearTimeout(blinkTimeout);
-    }, [nodes.Head_Mesh001]); // Dipende dal caricamento dei nodi del modello
+    }, [nodes.Head_Mesh001]);
 
-    // Loop di animazione eseguito ad ogni frame
+    // ====================================================================================
+    // MODIFICHE PRINCIPALI QUI: LOOP DI ANIMAZIONE
+    // ====================================================================================
     useFrame((state) => {
-        // Se il modello non è ancora caricato, non fare nulla
-        if (!nodes.Head_Mesh001?.morphTargetDictionary) return;
+        // Raggruppiamo tutte le mesh che devono essere animate
+        const animatedMeshes = [
+            nodes.Head_Mesh001,
+            nodes.Teeth_Mesh001,
+            nodes.Tongue_Mesh001
+        ];
 
-        const influences = nodes.Head_Mesh001.morphTargetInfluences;
-        const dict = nodes.Head_Mesh001.morphTargetDictionary;
+        // Se una qualsiasi delle mesh non è pronta, interrompiamo
+        if (animatedMeshes.some(mesh => !mesh?.morphTargetDictionary)) {
+            return;
+        }
 
-        // Fase 1: Resetta dolcemente le influenze delle espressioni (bocca e occhi) a 0.
-        // Questo evita che le espressioni restino "bloccate".
-        Object.keys(dict).forEach(key => {
-            // Ignoriamo i morph del battito di ciglia, gestiti da useEffect
-            if (key !== blinkLeftName && key !== blinkRightName) {
-                influences[dict[key]] = THREE.MathUtils.lerp(influences[dict[key]], 0, morphTargetSmoothing);
+        // Fase 1: Resetta dolcemente tutte le influenze a 0 per evitare che le espressioni restino bloccate.
+        // Lo facciamo per tutte le mesh animate (testa, denti, lingua).
+        animatedMeshes.forEach(mesh => {
+            if (mesh) { // Controllo di sicurezza
+                 Object.keys(mesh.morphTargetDictionary).forEach(key => {
+                    // Ignoriamo i morph del battito di ciglia, che sono gestiti a parte
+                    if (key !== blinkLeftName && key !== blinkRightName) {
+                        const index = mesh.morphTargetDictionary[key];
+                        mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(
+                            mesh.morphTargetInfluences[index],
+                            0,
+                            morphTargetSmoothing
+                        );
+                    }
+                });
             }
         });
 
-        // Fase 2: Se l'audio è in riproduzione, applica le animazioni
+        // Fase 2: Se l'audio è in riproduzione, applica le animazioni del parlato
         if (isPlaying && audio) {
             const currentAudioTime = audio.currentTime;
             
-            // Trova il visema corrente
             const currentViseme = visemes.find(
                 (v, i) =>
                     currentAudioTime * 1000 >= v.audioOffset &&
@@ -225,31 +206,41 @@ export function Avatar6(props) {
             );
 
             if (currentViseme) {
-                // 2a: Anima la BOCCA
+                // 2a: Anima la BOCCA, i DENTI e la LINGUA in modo sincronizzato
                 const visemeName = azureVisemeMap[currentViseme.visemeId];
-                const headIndex = dict[visemeName];
-                if (headIndex !== undefined) {
-                    influences[headIndex] = THREE.MathUtils.lerp(influences[headIndex], 1, morphTargetSmoothing);
-                }
+                
+                animatedMeshes.forEach(mesh => {
+                    if (mesh) {
+                        const morphIndex = mesh.morphTargetDictionary[visemeName];
+                        if (morphIndex !== undefined) {
+                             mesh.morphTargetInfluences[morphIndex] = THREE.MathUtils.lerp(
+                                mesh.morphTargetInfluences[morphIndex],
+                                1,
+                                morphTargetSmoothing
+                            );
+                        }
+                    }
+                });
 
-                // 2b: Anima gli OCCHI in base al suono
+                // 2b: Anima gli OCCHI (questa logica rimane invariata e agisce solo sulla testa)
                 const expression = visemeToEyeExpressionMap[currentViseme.visemeId];
                 if (expression) {
                     const { name, influence } = expression;
-                    const leftEyeIndex = dict[`${name}Left`];   // es. 'eyeSquintLeft'
-                    const rightEyeIndex = dict[`${name}Right`]; // es. 'eyeSquintRight'
+                    const dict = nodes.Head_Mesh001.morphTargetDictionary;
+                    const leftEyeIndex = dict[`${name}Left`];
+                    const rightEyeIndex = dict[`${name}Right`];
 
                     if (leftEyeIndex !== undefined) {
-                        influences[leftEyeIndex] = THREE.MathUtils.lerp(influences[leftEyeIndex], influence, morphTargetSmoothing);
+                        nodes.Head_Mesh001.morphTargetInfluences[leftEyeIndex] = THREE.MathUtils.lerp(nodes.Head_Mesh001.morphTargetInfluences[leftEyeIndex], influence, morphTargetSmoothing);
                     }
                     if (rightEyeIndex !== undefined) {
-                        influences[rightEyeIndex] = THREE.MathUtils.lerp(influences[rightEyeIndex], influence, morphTargetSmoothing);
+                        nodes.Head_Mesh001.morphTargetInfluences[rightEyeIndex] = THREE.MathUtils.lerp(nodes.Head_Mesh001.morphTargetInfluences[rightEyeIndex], influence, morphTargetSmoothing);
                     }
                 }
             }
         }
         
-        // Fase 3: Applica un movimento sottile allo sguardo per renderlo più naturale
+        // Fase 3: Applica un movimento sottile allo sguardo (invariato)
         if (nodes.LeftEye && nodes.RightEye) {
             const time = state.clock.getElapsedTime();
             nodes.LeftEye.rotation.y = Math.sin(time * 0.5) * 0.08;
@@ -261,7 +252,7 @@ export function Avatar6(props) {
 
     const group = useRef();
     
-    // JSX per il rendering del modello
+    // JSX per il rendering del modello (invariato)
     return (
         <group {...props} dispose={null} ref={group}>
             <group name="Scene">
