@@ -69,3 +69,6 @@ You can modify the input text field and click the **"Speak"** button to:
 **Update V2**:
 - **Avatar6** presents new additionals eyes movements as humanoid while avatar talks. Here i tried to correct mouth mapping for lipsing for opening and closing mouth.
 - **Experience** takes its modifications account in it.
+**Update V3**:
+- **Avatar8** presents new additionals eyes movements, face movements as humanoid while avatar talks. Here i tried to correct mouth mapping for lipsing for opening and closing mouth and move eyebrows.
+- **Experience** takes its modifications account in it.
