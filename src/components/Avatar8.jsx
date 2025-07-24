@@ -34,11 +34,14 @@ const useAzureTTS = () => {
         speechConfig.speechSynthesisOutputFormat = SpeechSDK.SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3;
         const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig, null);
 
+        debugger;
         const newVisemes = [];
         synthesizer.visemeReceived = (s, e) => {
+            console.log(`Viseme received: ${e.visemeId} at offset ${e.audioOffset}`);
             newVisemes.push({
                 audioOffset: e.audioOffset / 10000,
                 visemeId: e.visemeId,
+
             });
         };
 
@@ -87,14 +90,14 @@ const azureVisemeMap = {
     0: 'viseme_sil', 1: 'viseme_PP', 2: 'viseme_AA', 3: 'viseme_O',
     4: 'viseme_E', 5: 'viseme_RR', 6: 'viseme_I', 7: 'viseme_U',
     8: 'viseme_O', 9: 'viseme_O', 10: 'viseme_O', 11: 'viseme_I',
-    12: 'viseme_sil', 13: 'viseme_RR', 14: 'viseme_l', 15: 'viseme_SS',
+    12: 'viseme_sil', 13: 'viseme_RR', 14: 'viseme_nn', 15: 'viseme_SS', // visieme_L -> mapped to visieme_nn
     16: 'viseme_CH', 17: 'viseme_TH', 18: 'viseme_FF', 19: 'viseme_DD',
     20: 'viseme_kk', 21: 'viseme_CH'
 };
 
 const visemeToFacialExpressionMap = {
-    2: { name: 'eyeWide', influence: 0.5, browExpression: 'browUp', browInfluence: 0.6 },
-    3: { name: 'eyeWide', influence: 0.4, browExpression: 'browUp', browInfluence: 0.5 },
+    2: { name: 'eyeWide', influence: 0.6, browExpression: 'browInnerUp', browInfluence: 0.8 }, //0.6
+    3: { name: 'eyeWide', influence: 0.4, browExpression: 'browInnerUp', browInfluence: 0.5 },
     15: { name: 'eyeSquint', influence: 0.6, browExpression: 'browDown', browInfluence: 0.7 },
     16: { name: 'eyeSquint', influence: 0.7, browExpression: 'browDown', browInfluence: 0.8 },
     17: { name: 'eyeSquint', influence: 0.5, browExpression: 'browDown', browInfluence: 0.6 },
