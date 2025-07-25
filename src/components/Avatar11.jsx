@@ -79,7 +79,7 @@ const useAzureTTS = () => {
 };
 
 // ====================================================================================
-// MAPPE DI CONFIGURAZIONE (AGGIORNATE CON LE GUANCE)
+// MAPPE DI CONFIGURAZIONE (Nessuna modifica)
 // ====================================================================================
 const azureVisemeMap = {
     0: 'viseme_sil', 1: 'viseme_PP', 2: 'viseme_aa', 3: 'viseme_O',
@@ -91,25 +91,13 @@ const azureVisemeMap = {
 };
 
 const visemeToFacialExpressionMap = {
-    // Vocali aperte -> sopracciglia alzate
-    2: { name: 'eyeWide', influence: 0.6, browExpression: 'browInnerUp', browInfluence: 0.8 }, // aa
-    3: { name: 'eyeWide', influence: 0.4, browExpression: 'browInnerUp', browInfluence: 0.5 }, // O
-
-    // Vocali strette / sorrisi -> strizzare le guance
-    4: { cheekExpression: 'cheekSquint', cheekInfluence: 0.8 }, // E
-    6: { cheekExpression: 'cheekSquint', cheekInfluence: 1.0 }, // I
-    
-    // Suoni labiali -> gonfiare le guance
-    1: { cheekExpression: 'cheekPuff', cheekInfluence: 0.7 }, // PP
-    18: { cheekExpression: 'cheekPuff', cheekInfluence: 0.5 }, // FF
-
-    // Consonanti forti -> strizzare gli occhi, abbassare le sopracciglia, e strizzare le guance
-    15: { name: 'eyeSquint', influence: 0.6, browExpression: 'browDown', browInfluence: 0.7, cheekExpression: 'cheekSquint', cheekInfluence: 0.5 }, // SS
-    16: { name: 'eyeSquint', influence: 0.7, browExpression: 'browDown', browInfluence: 0.8, cheekExpression: 'cheekSquint', cheekInfluence: 0.6 }, // CH
-    17: { name: 'eyeSquint', influence: 0.5, browExpression: 'browDown', browInfluence: 0.6 }, // TH
-    20: { name: 'eyeSquint', influence: 0.8, browExpression: 'browDown', browInfluence: 0.9, cheekExpression: 'cheekSquint', cheekInfluence: 0.4 }, // kk
+    2: { name: 'eyeWide', influence: 0.6, browExpression: 'browInnerUp', browInfluence: 0.8 },
+    3: { name: 'eyeWide', influence: 0.4, browExpression: 'browInnerUp', browInfluence: 0.5 },
+    15: { name: 'eyeSquint', influence: 0.6, browExpression: 'browDown', browInfluence: 0.7 },
+    16: { name: 'eyeSquint', influence: 0.7, browExpression: 'browDown', browInfluence: 0.8 },
+    17: { name: 'eyeSquint', influence: 0.5, browExpression: 'browDown', browInfluence: 0.6 },
+    20: { name: 'eyeSquint', influence: 0.8, browExpression: 'browDown', browInfluence: 0.9 },
 };
-
 
 // ====================================================================================
 // COMPONENTE AVATAR FINALE (CODICE CORRETTO E COMPLETATO)
@@ -143,45 +131,34 @@ export function Avatar11(props) {
     const blinkRightName = 'eyeBlinkRight';
 
     useEffect(() => {
-        // --- CORRECTED LOGIC ---
-        // Define all the meshes that should be part of the blink.
-        const meshesToBlink = [
-            nodes.Head_Mesh001,
-            nodes.Eyelash_Mesh001,
-            nodes.EyeAO_Mesh001
-        ];
+        const head = nodes.Head_Mesh001;
+        const eyelash = nodes.Eyelash_Mesh001;
+        // La mesh EyeAO potrebbe avere anche un'animazione di battito di ciglia
+        const eyeAO = nodes.EyeAO_Mesh001;
+
+        if (!head?.morphTargetDictionary) return;
+
+        // Applica il battito di ciglia a tutte le mesh rilevanti
+        const blinkMeshes = [head, eyelash, eyeAO].filter(mesh => mesh?.morphTargetDictionary?.[blinkLeftName]);
 
         let blinkTimeout;
-
         const triggerBlink = () => {
-            // Iterate over each mesh and apply the blink if the morph target exists.
-            meshesToBlink.forEach(mesh => {
-                if (!mesh?.morphTargetDictionary) return; // Skip if the mesh has no morphs
-
+            blinkMeshes.forEach(mesh => {
                 const blinkLeftIndex = mesh.morphTargetDictionary[blinkLeftName];
                 const blinkRightIndex = mesh.morphTargetDictionary[blinkRightName];
-
-                // Only apply animation if both left and right blink morphs are found on THIS mesh.
-                if (blinkLeftIndex !== undefined && blinkRightIndex !== undefined) {
-                    mesh.morphTargetInfluences[blinkLeftIndex] = 1;
-                    mesh.morphTargetInfluences[blinkRightIndex] = 1;
-
-                    setTimeout(() => {
-                        mesh.morphTargetInfluences[blinkLeftIndex] = 0;
-                        mesh.morphTargetInfluences[blinkRightIndex] = 0;
-                    }, 150);
-                }
+                mesh.morphTargetInfluences[blinkLeftIndex] = 1;
+                mesh.morphTargetInfluences[blinkRightIndex] = 1;
+                setTimeout(() => {
+                    mesh.morphTargetInfluences[blinkLeftIndex] = 0;
+                    mesh.morphTargetInfluences[blinkRightIndex] = 0;
+                }, 150);
             });
-
-            // Set the timeout for the next blink
-            // blinkTimeout = setTimeout(triggerBlink, Math.random() * 4000 + 2000);
             blinkTimeout = setTimeout(triggerBlink, Math.random() * 4000 + 2000);
         };
 
         triggerBlink();
-
         return () => clearTimeout(blinkTimeout);
-    }, [nodes]); // Dependency array remains the same
+    }, [nodes]);
 
     // ADD THIS NEW HOOK for random eye movement
     useEffect(() => {
@@ -201,35 +178,24 @@ export function Avatar11(props) {
         const head = nodes.Head_Mesh001;
         const teeth = nodes.Teeth_Mesh001;
         const tongue = nodes.Tongue_Mesh001;
-        const eyeAO = nodes.EyeAO_Mesh001;
 
-        if (!head?.morphTargetDictionary || !teeth?.morphTargetDictionary || !tongue?.morphTargetDictionary || !eyeAO?.morphTargetDictionary) {
+        if (!head?.morphTargetDictionary || !teeth?.morphTargetDictionary || !tongue?.morphTargetDictionary) {
             return;
         }
 
-        const lipSyncMeshes = [head, teeth, tongue];
-        const expressionMeshes = [head, eyeAO];
+        const allAnimatedMeshes = [head, teeth, tongue];
 
         // FASE 1: Resetta le influenze
-        lipSyncMeshes.forEach(mesh => {
+        allAnimatedMeshes.forEach(mesh => {
             if (!mesh.morphTargetInfluences) return;
             Object.keys(mesh.morphTargetDictionary).forEach(key => {
-                const index = mesh.morphTargetDictionary[key];
-                mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[index], 0, morphTargetSmoothing);
-
-                // --- THIS IS THE FIX ---
-                // Add this 'if' condition to prevent the blink from being reset on the head every frame.
                 if (key !== blinkLeftName && key !== blinkRightName) {
-                    mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[index], 0, morphTargetSmoothing);
+                    const index = mesh.morphTargetDictionary[key];
+                    mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(
+                        mesh.morphTargetInfluences[index], 0, morphTargetSmoothing
+                    );
                 }
             });
-        });
-        
-        Object.keys(eyeAO.morphTargetDictionary).forEach(key => {
-            if (key !== blinkLeftName && key !== blinkRightName) {
-                const index = eyeAO.morphTargetDictionary[key];
-                eyeAO.morphTargetInfluences[index] = THREE.MathUtils.lerp(eyeAO.morphTargetInfluences[index], 0, morphTargetSmoothing);
-            }
         });
 
         // FASE 2: Applica le animazioni del parlato
@@ -246,54 +212,29 @@ export function Avatar11(props) {
                 const visemeName = azureVisemeMap[currentViseme.visemeId];
                 
                 // Anima bocca, denti e lingua
-                lipSyncMeshes.forEach(mesh => {
+                allAnimatedMeshes.forEach(mesh => {
                     const morphIndex = mesh.morphTargetDictionary[visemeName];
                     if (morphIndex !== undefined) {
                         mesh.morphTargetInfluences[morphIndex] = 1;
                     }
                 });
 
-                // Anima occhi, sopracciglia e guance
+                // Anima occhi e sopracciglia SULLA MESH DELLA TESTA
                 const expression = visemeToFacialExpressionMap[currentViseme.visemeId];
                 if (expression) {
-                    expressionMeshes.forEach(mesh => {
-                        const dict = mesh.morphTargetDictionary;
+                    const dict = head.morphTargetDictionary; // <-- USA IL DIZIONARIO DELLA TESTA
 
-                        // Occhi
-                        if(expression.name){
-                            const leftEyeIndex = dict[`${expression.name}Left`];
-                            const rightEyeIndex = dict[`${expression.name}Right`];
-                            if (leftEyeIndex !== undefined) mesh.morphTargetInfluences[leftEyeIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[leftEyeIndex], expression.influence, morphTargetSmoothing);
-                            if (rightEyeIndex !== undefined) mesh.morphTargetInfluences[rightEyeIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[rightEyeIndex], expression.influence, morphTargetSmoothing);
-                        }
+                    const leftEyeIndex = dict[`${expression.name}Left`];
+                    const rightEyeIndex = dict[`${expression.name}Right`];
+                    if (leftEyeIndex !== undefined) head.morphTargetInfluences[leftEyeIndex] = THREE.MathUtils.lerp(head.morphTargetInfluences[leftEyeIndex], expression.influence, morphTargetSmoothing);
+                    if (rightEyeIndex !== undefined) head.morphTargetInfluences[rightEyeIndex] = THREE.MathUtils.lerp(head.morphTargetInfluences[rightEyeIndex], expression.influence, morphTargetSmoothing);
 
-                        // Sopracciglia
-                        if (expression.browExpression) {
-                            const browLeftIndex = dict[`${expression.browExpression}Left`];
-                            const browRightIndex = dict[`${expression.browExpression}Right`];
-                            if (browLeftIndex !== undefined) mesh.morphTargetInfluences[browLeftIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[browLeftIndex], expression.browInfluence, morphTargetSmoothing);
-                            if (browRightIndex !== undefined) mesh.morphTargetInfluences[browRightIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[browRightIndex], expression.browInfluence, morphTargetSmoothing);
-                        }
-
-                        // Guance (solo su EyeAO_Mesh)
-                        if (mesh.name.includes("EyeAO") && expression.cheekExpression) {
-                             if (expression.cheekExpression === 'cheekPuff') {
-                                const cheekPuffIndex = dict['cheekPuff'];
-                                if (cheekPuffIndex !== undefined) {
-                                    mesh.morphTargetInfluences[cheekPuffIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[cheekPuffIndex], expression.cheekInfluence, morphTargetSmoothing);
-                                }
-                            } else if (expression.cheekExpression === 'cheekSquint') {
-                                const cheekSquintLeftIndex = dict['cheekSquintLeft'];
-                                const cheekSquintRightIndex = dict['cheekSquintRight'];
-                                if (cheekSquintLeftIndex !== undefined) {
-                                    mesh.morphTargetInfluences[cheekSquintLeftIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[cheekSquintLeftIndex], expression.cheekInfluence, morphTargetSmoothing);
-                                }
-                                if (cheekSquintRightIndex !== undefined) {
-                                    mesh.morphTargetInfluences[cheekSquintRightIndex] = THREE.MathUtils.lerp(mesh.morphTargetInfluences[cheekSquintRightIndex], expression.cheekInfluence, morphTargetSmoothing);
-                                }
-                            }
-                        }
-                    });
+                    if (expression.browExpression) {
+                        const browLeftIndex = dict[`${expression.browExpression}Left`];
+                        const browRightIndex = dict[`${expression.browExpression}Right`];
+                        if (browLeftIndex !== undefined) head.morphTargetInfluences[browLeftIndex] = THREE.MathUtils.lerp(head.morphTargetInfluences[browLeftIndex], expression.browInfluence, morphTargetSmoothing);
+                        if (browRightIndex !== undefined) head.morphTargetInfluences[browRightIndex] = THREE.MathUtils.lerp(head.morphTargetInfluences[browRightIndex], expression.browInfluence, morphTargetSmoothing);
+                    }
                 }
             }
         }
