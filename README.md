@@ -75,3 +75,7 @@ You can modify the input text field and click the **"Speak"** button to:
 
 **Update V4**:
 - **Avatar9** resolve eye brow errors and move face as more humanoid respect to avatar-8.
+
+**DP - Update V5**:
+- **Avatar11** added eyelook up and down + right and left in smoothly transitions like gazing surrounding view
+- during eye blinking, the eyelash and eyelid are not in sync, tried to solve it but solution is not working. (in-progress)
