@@ -91,8 +91,10 @@ const azureVisemeMap = {
 };
 
 const visemeToFacialExpressionMap = {
+    // eye wide and brow inner up
     2: { name: 'eyeWide', influence: 0.6, browExpression: 'browInnerUp', browInfluence: 0.8 },
     3: { name: 'eyeWide', influence: 0.4, browExpression: 'browInnerUp', browInfluence: 0.5 },
+    // eye squint and brow down
     15: { name: 'eyeSquint', influence: 0.6, browExpression: 'browDown', browInfluence: 0.7 },
     16: { name: 'eyeSquint', influence: 0.7, browExpression: 'browDown', browInfluence: 0.8 },
     17: { name: 'eyeSquint', influence: 0.5, browExpression: 'browDown', browInfluence: 0.6 },
@@ -143,7 +145,7 @@ export function Avatar9(props) {
                 setTimeout(() => {
                     mesh.morphTargetInfluences[blinkLeftIndex] = 0;
                     mesh.morphTargetInfluences[blinkRightIndex] = 0;
-                }, 150);
+                }, 100);
             });
             blinkTimeout = setTimeout(triggerBlink, Math.random() * 4000 + 2000);
         };
@@ -163,7 +165,6 @@ export function Avatar9(props) {
         }
 
         const allAnimatedMeshes = [head, teeth, tongue];
-
         // FASE 1: Resetta le influenze
         allAnimatedMeshes.forEach(mesh => {
             if (!mesh.morphTargetInfluences) return;
@@ -218,14 +219,14 @@ export function Avatar9(props) {
             }
         }
         
-        // FASE 3: Applica un movimento sottile allo sguardo
+       // FASE 3: Applica un movimento sottile allo sguardo
         if (nodes.LeftEye && nodes.RightEye) {
             const time = state.clock.getElapsedTime();
             nodes.LeftEye.rotation.y = Math.sin(time * 0.5) * 0.08;
             nodes.LeftEye.rotation.x = Math.cos(time * 0.3) * 0.05;
             nodes.RightEye.rotation.y = Math.sin(time * 0.5) * 0.08;
             nodes.RightEye.rotation.x = Math.cos(time * 0.3) * 0.05;
-        }
+        } 
     });
 
     const group = useRef();

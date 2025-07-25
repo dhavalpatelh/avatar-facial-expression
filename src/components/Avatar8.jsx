@@ -98,8 +98,10 @@ const azureVisemeMap = {
 const visemeToFacialExpressionMap = {
     2: { name: 'eyeWide', influence: 0.6, browExpression: 'browInnerUp', browInfluence: 0.8 }, //0.6
     3: { name: 'eyeWide', influence: 0.4, browExpression: 'browInnerUp', browInfluence: 0.5 },
+    
     15: { name: 'eyeSquint', influence: 0.6, browExpression: 'browDown', browInfluence: 0.7 },
     16: { name: 'eyeSquint', influence: 0.7, browExpression: 'browDown', browInfluence: 0.8 },
+
     17: { name: 'eyeSquint', influence: 0.5, browExpression: 'browDown', browInfluence: 0.6 },
     20: { name: 'eyeSquint', influence: 0.8, browExpression: 'browDown', browInfluence: 0.9 },
 };
@@ -127,28 +129,42 @@ export function Avatar8(props) {
     const blinkLeftName = 'eyeBlinkLeft';
     const blinkRightName = 'eyeBlinkRight';
 
+
+    // handle batitito do ciglia
     useEffect(() => {
+
         const head = nodes.Head_Mesh001;
+        //const eyelash = nodes.Eyelash_Mesh001;
+        // La mesh EyeAO potrebbe avere anche un'animazione di battito di ciglia
         if (!head?.morphTargetDictionary) return;
 
         const blinkLeftIndex = head.morphTargetDictionary[blinkLeftName];
         const blinkRightIndex = head.morphTargetDictionary[blinkRightName];
+    
 
-        if (blinkLeftIndex === undefined || blinkRightIndex === undefined) {
+         if (blinkLeftIndex === undefined || blinkRightIndex === undefined) {
             console.warn("Morph target per il battito di ciglia non trovati.");
             return;
-        }
+        } 
+       // Check if all morph targets exist
+
+       
 
         let blinkTimeout;
         const triggerBlink = () => {
             if (head.morphTargetInfluences) {
+
+                           
+                // close eyeslids
                 head.morphTargetInfluences[blinkLeftIndex] = 1;
                 head.morphTargetInfluences[blinkRightIndex] = 1;
+
                 setTimeout(() => {
                     head.morphTargetInfluences[blinkLeftIndex] = 0;
                     // --- ECCO LA CORREZIONE ---
                     head.morphTargetInfluences[blinkRightIndex] = 0; // Corretto il typo da 'morphTargeInfluences'
-                }, 150);
+
+                }, 100); // blink ogni 100 millisecondi
             }
             blinkTimeout = setTimeout(triggerBlink, Math.random() * 4000 + 2000);
         };
@@ -172,7 +188,13 @@ export function Avatar8(props) {
         // FASE 1: Resetta le influenze
         animatedMeshes.forEach(mesh => {
             Object.keys(mesh.morphTargetDictionary).forEach(key => {
-                if (key !== blinkLeftName && key !== blinkRightName) {
+                //if (key !== blinkLeftName && key !== blinkRightName) {
+                if (
+                    key !== blinkLeftName &&
+                    key !== blinkRightName &&
+                    key !== browDownLeftName &&
+                    key !== browDownRightName
+                ) {
                     const index = mesh.morphTargetDictionary[key];
                     mesh.morphTargetInfluences[index] = THREE.MathUtils.lerp(
                         mesh.morphTargetInfluences[index], 0, morphTargetSmoothing
