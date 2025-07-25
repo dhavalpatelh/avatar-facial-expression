@@ -60,3 +60,18 @@ You can modify the input text field and click the **"Speak"** button to:
 
 * Dynamically synthesize new speech
 * Automatically update avatar lip movements in sync
+
+
+**Update V1**:
+- **Avatar5** presents new additionals eyes movements while avatar talks
+- **Experience** takes its modifications account in it.
+
+**Update V2**:
+- **Avatar6** presents new additionals eyes movements as humanoid while avatar talks. Here i tried to correct mouth mapping for lipsing for opening and closing mouth.
+- **Experience** takes its modifications account in it.
+**Update V3**:
+- **Avatar8** presents new additionals eyes movements, face movements as humanoid while avatar talks. Here i tried to correct mouth mapping for lipsing for opening and closing mouth and move eyebrows.
+- **Experience** takes its modifications account in it.
+
+**Update V4**:
+- **Avatar9** resolve eye brow errors and move face as more humanoid respect to avatar-8.
